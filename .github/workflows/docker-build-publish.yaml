@@ -73,12 +73,6 @@ jobs:
         with:
           submodules: recursive
 
-      -
-        name: Clone additional repository
-        id: clone_repo
-        run: |
-          git clone https://github.com/AthenZ/athenz.git
-
       # A GitHub Action to prepare default environment variables.
       -
         name: Set dynamic docker build arguments
