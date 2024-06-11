@@ -57,7 +57,7 @@ spec:
       initContainers:
         # TODO: sia-wait should be implemented in sia-init in future
         - name: sia-wait
-          image: &sia-image ghcr.io/t4niwa/k8s-athenz-sia:latest
+          image: &sia-image docker.io/athenz/k8s-athenz-sia:latest
           imagePullPolicy: &sia-imagePullPolicy IfNotPresent
           resources: &sia-resources
             limits:
@@ -186,7 +186,7 @@ spec:
           env:
             - name: PORT
               value: "3000"
-          resources: *sia-resources
+          resources: *envoy-resources
         - name: authorization-proxy
           image: docker.io/athenz/authorization-proxy:latest
           imagePullPolicy: IfNotPresent
