@@ -122,13 +122,17 @@ spec:
           args:
             - run
             - --server
-            - --log-format=$(IDENTITYPROVIDER_OPA_LOG_FORMAT)
-            - --log-level=$(IDENTITYPROVIDER_OPA_LOG_LEVEL)
+            - --log-format=$(IDENTITYD_OPA_LOG_FORMAT)
+            - --log-level=$(IDENTITYD_OPA_LOG_LEVEL)
             - --config-file=/etc/opa/config/config.yaml
+            - --tls-cert-file=/etc/opa/tls/tls.crt
+            - --tls-private-key-file=/etc/opa/tls/tls.key
             - --authentication=token
             - --authorization=basic
             - --addr
-            - http://127.0.0.1:8181
+            - https://0.0.0.0:443
+            - --addr
+            - http://localhost:8181
             - --ignore
             - .*
             - --skip-version-check
@@ -137,9 +141,10 @@ spec:
             - configMapRef:
                 name: athenz-identityprovider
           ports:
-            - name: opa
+            - name: https
+              containerPort: 443
+            - name: http
               containerPort: 8181
-              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
@@ -215,7 +220,7 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          command: 
+          command:
             - /usr/local/bin/envoy
           args:
             - -c
