@@ -398,7 +398,7 @@ load-docker-images-external:
 	docker pull docker.io/portainer/kubectl-shell:latest
 	docker pull docker.io/openpolicyagent/opa:latest-static
 	docker pull docker.io/athenz/k8s-athenz-sia:latest
-	docker pull $(DOCKER_REGISTRY)docker-vegeta:latest
+	docker pull ghcr.io/ctyano/docker-vegeta:latest
 	docker pull docker.io/athenz/authorization-proxy:latest
 
 load-kubernetes-images: version install-kustomize
