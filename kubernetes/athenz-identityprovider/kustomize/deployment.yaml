@@ -122,8 +122,8 @@ spec:
           args:
             - run
             - --server
-            - --log-format=$(IDENTITYD_OPA_LOG_FORMAT)
-            - --log-level=$(IDENTITYD_OPA_LOG_LEVEL)
+            - --log-format=$(IDENTITYPROVIDER_OPA_LOG_FORMAT)
+            - --log-level=$(IDENTITYPROVIDER_OPA_LOG_LEVEL)
             - --config-file=/etc/opa/config/config.yaml
             - --tls-cert-file=/etc/opa/tls/tls.crt
             - --tls-private-key-file=/etc/opa/tls/tls.key
@@ -141,10 +141,12 @@ spec:
             - configMapRef:
                 name: athenz-identityprovider
           ports:
-            - name: https
-              containerPort: 443
             - name: http
               containerPort: 8181
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
