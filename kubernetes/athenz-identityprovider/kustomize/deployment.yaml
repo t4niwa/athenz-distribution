@@ -39,7 +39,7 @@ spec:
       initContainers:
         # TODO: sia-wait should be implemented in sia-init in future
         - name: sia-wait
-          image: &sia-image ghcr.io/t4niwa/k8s-athenz-sia:latest
+          image: &sia-image docker.io/athenz/k8s-athenz-sia:latest
           imagePullPolicy: &sia-imagePullPolicy IfNotPresent
           resources: &sia-resources
             limits:
@@ -52,7 +52,7 @@ spec:
             - |
               while true; do nc -vzw3 athenz-zts-server.athenz.svc.cluster.local 4443 && break; done
         - name: sia-init
-          image: &sia-image ghcr.io/t4niwa/k8s-athenz-sia:latest
+          image: &sia-image docker.io/athenz/k8s-athenz-sia:latest
           imagePullPolicy: &sia-imagePullPolicy IfNotPresent
           args: &sia-args
             - --mode=init
@@ -125,10 +125,14 @@ spec:
             - --log-format=$(IDENTITYPROVIDER_OPA_LOG_FORMAT)
             - --log-level=$(IDENTITYPROVIDER_OPA_LOG_LEVEL)
             - --config-file=/etc/opa/config/config.yaml
+            - --tls-cert-file=/etc/opa/tls/tls.crt
+            - --tls-private-key-file=/etc/opa/tls/tls.key
             - --authentication=token
             - --authorization=basic
             - --addr
-            - http://127.0.0.1:8181
+            - https://0.0.0.0:443
+            - --addr
+            - http://localhost:8181
             - --ignore
             - .*
             - --skip-version-check
@@ -137,8 +141,11 @@ spec:
             - configMapRef:
                 name: athenz-identityprovider
           ports:
-            - name: opa
+            - name: http
               containerPort: 8181
+              protocol: TCP
+            - name: https
+              containerPort: 443
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -215,7 +222,7 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          command: 
+          command:
             - /usr/local/bin/envoy
           args:
             - -c
@@ -290,7 +297,7 @@ spec:
       initContainers:
         # TODO: sia-wait should be implemented in sia-init in future
         - name: sia-wait
-          image: &sia-image ghcr.io/t4niwa/k8s-athenz-sia:latest
+          image: &sia-image docker.io/athenz/k8s-athenz-sia:latest
           imagePullPolicy: &sia-imagePullPolicy IfNotPresent
           resources: &sia-resources
             limits:

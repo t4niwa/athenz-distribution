@@ -20,7 +20,7 @@ kustomize-edit-athenz-loadtest-image:
 	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/t4niwa/" ]; then \
 	( \
 	cd kustomize \
-	&& kustomize edit set image ghcr.io/t4niwa/docker-vegeta:latest=$(DOCKER_REGISTRY)docker-vegeta:latest \
+	&& kustomize edit set image ghcr.io/ctyano/docker-vegeta:latest=ghcr.io/ctyano/docker-vegeta:latest \
 	) \
 	fi
 
