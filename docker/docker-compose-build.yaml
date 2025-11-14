@@ -217,7 +217,7 @@ services:
 =======
   athenz-plugins:
     container_name: athenz-plugins
-    image: ghcr.io/t4niwa/athenz-plugins:latest
+    image: ghcr.io/ctyano/athenz-plugins:latest
 >>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
     environment:
       JAR_DESTINATION: /athenz/plugins/

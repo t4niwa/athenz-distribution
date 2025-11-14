@@ -173,7 +173,7 @@ kustomize-edit-athenz-zms-server-image: install-kustomize
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-auth-core:latest=$(DOCKER_REGISTRY)athenz-auth-core:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zms-server:latest=$(DOCKER_REGISTRY)athenz-zms-server:latest \
 =======
-	&& kustomize edit set image ghcr.io/t4niwa/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
+	&& kustomize edit set image ghcr.io/ctyano/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zms-server:latest=$(DOCKER_REGISTRY)athenz-zms-server:latest \
 >>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
 	) \
@@ -191,7 +191,7 @@ kustomize-edit-athenz-zts-server-image: install-kustomize
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zts-server:latest=$(DOCKER_REGISTRY)athenz-zts-server:latest \
 =======
-	&& kustomize edit set image ghcr.io/t4niwa/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
+	&& kustomize edit set image ghcr.io/ctyano/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zts-server:latest=$(DOCKER_REGISTRY)athenz-zts-server:latest \
 >>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc

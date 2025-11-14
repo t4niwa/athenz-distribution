@@ -45,7 +45,7 @@ images:
 - name: ghcr.io/t4niwa/athenz-auth-core:latest
   newName: ghcr.io/t4niwa/athenz-auth-core
 =======
-- name: ghcr.io/t4niwa/athenz-plugins:latest
+- name: ghcr.io/ctyano/athenz-plugins:latest
   newName: ghcr.io/t4niwa/athenz-plugins
 >>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
   newTag: latest
