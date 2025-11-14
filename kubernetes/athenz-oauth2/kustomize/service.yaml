@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2
+  labels:
+    app: oauth2-service
+spec:
+  type: ClusterIP
+  selector:
+    app: oauth2-deployment
+  ports:
+    - name: dex
+      port: 5556
+      targetPort: dex
+    - name: envoy
+      port: 10000
+      targetPort: envoy

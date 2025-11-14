@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-deployment
+  labels:
+    app: oauth2-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-deployment
+  template:
+    metadata:
+      labels:
+        app: oauth2-deployment
+    spec:
+      volumes:
+        - name: dex-config
+          configMap:
+            name: dex-config
+        - name: envoy-config
+          configMap:
+            name: oauth2-envoy-config
+      containers:
+        - name: dex
+          image: docker.io/dexidp/dex:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: dex
+              containerPort: 5556
+              protocol: TCP
+          volumeMounts:
+            - name: dex-config
+              mountPath: /etc/dex/config.docker.yaml
+              subPath: config.docker.yaml
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+            requests:
+              memory: 64Mi
+              cpu: 50m
+        - name: envoy
+          image: ghcr.io/ctyano/certsigner-envoy:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - envoy
+            - -c
+            - /etc/envoy/envoy.yaml
+            - -l
+            - debug
+          ports:
+            - name: envoy
+              containerPort: 10000
+              protocol: TCP
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy/envoy.yaml
+              subPath: envoy.yaml
+        - name: athenz-user-cert
+          image: ghcr.io/ctyano/athenz_user_cert:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - tail
+            - -f

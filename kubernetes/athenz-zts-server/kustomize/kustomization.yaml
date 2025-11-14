@@ -13,19 +13,24 @@ generatorOptions:
 
 secretGenerator:
 - files:
-  - zts_keystore.pkcs12=certs/zts_keystore.pkcs12
-  - zts_signer_keystore.pkcs12=certs/zts_signer_keystore.pkcs12
-  - zms_client_keystore.pkcs12=certs/zms_client_keystore.pkcs12
-  name: athenz-zts-cert-stores
-  type: Opaque
-- files:
   - zts.private.pem=keys/zts.private.pem
   - zts.public.pem=keys/zts.public.pem
+  - ca.private.pem=keys/ca.private.pem
+  - crypki.private.pem=keys/crypki.private.pem
   name: athenz-zts-keys
   type: Opaque
 - files:
-  - athenz_admin.cert.pem=certs/athenz_admin.cert.pem
+  - zts.cert.pem=certs/zts.cert.pem
+  - selfsign.ca.cert.pem=certs/selfsign.ca.cert.pem
+  name: athenz-zts-certs
+  type: Opaque
+- files:
+  - ca.cert.pem=certs/ca.cert.pem
+  name: athenz-cacert
+  type: Opaque
+- files:
   - athenz_admin.private.pem=keys/athenz_admin.private.pem
+  - athenz_admin.cert.pem=certs/athenz_admin.cert.pem
   name: athenz-admin-keys
   type: Opaque
 
@@ -36,8 +41,13 @@ configMapGenerator:
   - logback.xml=conf/logback.xml
   name: athenz-zts-conf
 images:
+<<<<<<< HEAD
 - name: ghcr.io/t4niwa/athenz-auth-core:latest
   newName: ghcr.io/t4niwa/athenz-auth-core
+=======
+- name: ghcr.io/ctyano/athenz-plugins:latest
+  newName: ghcr.io/ctyano/athenz-plugins
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
   newTag: latest
 - name: ghcr.io/t4niwa/athenz-cli:latest
   newName: ghcr.io/t4niwa/athenz-cli

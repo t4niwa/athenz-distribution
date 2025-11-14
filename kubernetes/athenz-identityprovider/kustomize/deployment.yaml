@@ -7,6 +7,11 @@ metadata:
     app: identityprovider-deployment
 spec:
   replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   selector:
     matchLabels:
       app: identityprovider-deployment
@@ -22,6 +27,13 @@ spec:
         - name: envoy
           configMap:
             name: identityprovider-envoy
+        - name: attestation-data
+          secret:
+            secretName: identityprovider-jwt
+            defaultMode: 0555
+            items:
+              - key: identitydocument.jwt
+                path: identitydocument.jwt
         - name: athenz-tls-certs
           emptyDir: {}
         - name: policy
@@ -31,8 +43,9 @@ spec:
           configMap:
             name: identityprovider-config
         - name: athenz-cacert
-          configMap:
-            name: athenz-cacert
+          secret:
+            secretName: athenz-cacert
+            defaultMode: 0555
             items:
               - key: ca.cert.pem
                 path: ca-certificates.crt
@@ -85,16 +98,22 @@ spec:
               cpu: 50m
               memory: 64Mi
           volumeMounts: &sia-volumeMounts
+            - name: attestation-data
+              mountPath: /var/run/athenz/attestation-data
+              readOnly: true
             - name: athenz-tls-certs
               mountPath: /var/run/athenz
             - name: athenz-cacert
-              mountPath: /etc/ssl/certs
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+              readOnly: true
       containers:
         - name: sia
           image: *sia-image
           imagePullPolicy: *sia-imagePullPolicy
           args:
             - --mode=refresh
+            - --provider-service=sys.auth.zts
           envFrom: *sia-envFrom
           env: *sia-env
           ports:
@@ -110,7 +129,12 @@ spec:
           resources: *sia-resources
           volumeMounts: *sia-volumeMounts
         - name: opa
-          image: docker.io/openpolicyagent/opa:latest-static
+          # NOTE: opa fails to respond from v0.67.0 thus required to lock to v0.67.0 until the investigation is complete.
+          # https://github.com/open-policy-agent/opa/releases/tag/v0.67.0
+          #
+          #image: docker.io/openpolicyagent/opa:latest-static
+          #image: docker.io/openpolicyagent/opa:0.67.0-static
+          image: docker.io/openpolicyagent/opa:0.66.0-static
           imagePullPolicy: IfNotPresent
           resources: &opa-resources
             limits:
@@ -205,7 +229,7 @@ spec:
               readOnly: true
         - name: envoy
           # Envoy crashes in Raspberry Pi 4
-          image: docker.io/envoyproxy/envoy:v1.29-latest
+          image: docker.io/envoyproxy/envoy:v1.34-latest
           #image: docker.io/thegrandpkizzle/envoy:1.26.1
           imagePullPolicy: IfNotPresent
           ports:
@@ -247,6 +271,7 @@ spec:
             - name: PORT
               value: "3000"
           resources: *envoy-resources
+<<<<<<< HEAD
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -354,3 +379,5 @@ spec:
           envFrom: *sia-envFrom
           env: *sia-env
           volumeMounts: *sia-volumeMounts
+=======
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc

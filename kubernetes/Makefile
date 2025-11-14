@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 ifeq ($(DOCKER_REGISTRY),)
 DOCKER_REGISTRY=ghcr.io/t4niwa/
+=======
+SED_INPLACE = sed -i
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	SED_INPLACE = sed -i ''
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
 endif
 
 install-kustomize:
@@ -19,25 +26,77 @@ clean-certificates:
 	rm -rf athenz-authzwebhook/kustomize/{keys,certs}
 	rm -rf athenz-authzproxy/kustomize/{keys,certs}
 	rm -rf athenz-client/kustomize/{keys,certs}
+	rm -rf crypki-softhsm/kustomize/{keys,certs}
 
 clean-namespace:
 	kubectl delete namespace athenz ||:
+	kubectl delete namespace crypki ||:
 
-clean-athenz: clean-namespace clean-certificates
+clean: clean-namespace clean-certificates
+	@grep -q "athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.crypki.HttpCertSignerFactory" "athenz-zts-server/kustomize/conf/zts.properties" && \
+		$(MAKE) clean-patch-athenz-zts ||:
 
-copy-to-kustomization:
-	cp -r ../keys ../certs athenz-cli/kustomize/
-	cp -r ../keys ../certs athenz-zms-server/kustomize/
-	cp -r ../keys ../certs athenz-zts-server/kustomize/
-	cp -r ../keys ../certs athenz-ui/kustomize/
-	#cp ../athenz/servers/zms/schema/zms_server.sql athenz-db/kustomize/zms_server.sql
-	#cp ../athenz/servers/zts/schema/zts_server.sql athenz-db/kustomize/zts_server.sql
-	cp -r ../keys ../certs athenz-identityprovider/kustomize/
-	cp -r ../keys ../certs athenz-authorizer/kustomize/
-	cp -r ../keys ../certs athenz-authzenvoy/kustomize/
-	cp -r ../keys ../certs athenz-authzwebhook/kustomize/
-	cp -r ../keys ../certs athenz-authzproxy/kustomize/
-	cp -r ../keys ../certs athenz-client/kustomize/
+copy-crypki-certificates-to-kustomization:
+	cp -r ../keys ../certs crypki-softhsm/kustomize/
+
+copy-certificates-to-kustomization:
+	grep -q "athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.crypki.HttpCertSignerFactory" "athenz-zts-server/kustomize/conf/zts.properties" && echo SKIPPED || \
+	( \
+	cp -r ../keys ../certs athenz-cli/kustomize/ && \
+	cp -r ../keys ../certs athenz-zms-server/kustomize/ && \
+	cp -r ../keys ../certs athenz-zts-server/kustomize/ && \
+	cp -r ../keys ../certs athenz-ui/kustomize/ && \
+	cp -r ../keys ../certs athenz-identityprovider/kustomize/ && \
+	cp -r ../keys ../certs athenz-authorizer/kustomize/ && \
+	cp -r ../keys ../certs athenz-authzenvoy/kustomize/ && \
+	cp -r ../keys ../certs athenz-authzwebhook/kustomize/ && \
+	cp -r ../keys ../certs athenz-authzproxy/kustomize/ && \
+	cp -r ../keys ../certs athenz-client/kustomize/ && \
+	cp -r ../keys ../certs crypki-softhsm/kustomize/ && \
+	echo "APPLIED copy-certificates-to-kustomization" \
+	)
+
+overwrite-certificates-with-crypki:
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-cli/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-zms-server/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-zts-server/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-ui/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-identityprovider/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-authorizer/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-authzenvoy/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-authzwebhook/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-authzproxy/kustomize/
+	cp -r crypki-softhsm/kustomize/keys crypki-softhsm/kustomize/certs athenz-client/kustomize/
+
+# Usage:
+# make replace KEY=old_string VALUE=new_string FILE=path/to/file
+replace-system-properties:
+	@if [ -z "$(KEY)" ] || [ -z "$(VALUE)" ] || [ -z "$(FILE)" ]; then \
+		echo "Error: KEY, VALUE, and FILE must be provided"; \
+		exit 1; \
+	fi; \
+	if grep -q "$(KEY)" "$(FILE)"; then \
+		echo "Replacing '$(KEY)' with '$(VALUE)' in $(FILE)"; \
+		$(SED_INPLACE) 's|$(KEY)|$(VALUE)|g' "$(FILE)"; \
+	else \
+		echo "Key '$(KEY)' not found in $(FILE)"; \
+	fi
+
+clean-patch-athenz-zts:
+	@$(MAKE) replace-system-properties \
+		KEY="athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.crypki.HttpCertSignerFactory" \
+		VALUE="athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.KeyStoreCertSignerFactory" \
+		FILE="athenz-zts-server/kustomize/conf/zts.properties"
+
+patch-athenz-zts:
+	@$(MAKE) replace-system-properties \
+		KEY="athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.KeyStoreCertSignerFactory" \
+		VALUE="athenz.zts.cert_signer_factory_class=com.yahoo.athenz.zts.cert.impl.crypki.HttpCertSignerFactory" \
+		FILE="athenz-zts-server/kustomize/conf/zts.properties"
+
+switch-athenz-zts-cert-signer: patch-athenz-zts
+	@$(MAKE) -C crypki-softhsm generate-certificates
+	@$(MAKE) overwrite-certificates-with-crypki
 
 kind-setup:
 	kind create cluster
@@ -46,7 +105,10 @@ kind-load-images:
 	kubectl config get-contexts kind-kind --no-headers=true | grep -E "^\* +kind-kind"
 	kind load docker-image \
 		docker.io/ghostunnel/ghostunnel:latest \
-		$(DOCKER_REGISTRY)athenz-auth-core:latest
+		$(DOCKER_REGISTRY)crypki-softhsm:latest \
+		$(DOCKER_REGISTRY)certsigner-envoy:latest \
+		$(DOCKER_REGISTRY)athenz_user_cert:latest \
+		$(DOCKER_REGISTRY)athenz-plugins:latest
 	kind load docker-image \
 		$(DOCKER_REGISTRY)athenz-db:latest \
 		$(DOCKER_REGISTRY)athenz-zms-server:latest \
@@ -55,16 +117,36 @@ kind-load-images:
 		$(DOCKER_REGISTRY)athenz-ui:latest
 	kind load docker-image \
 		docker.io/ealen/echo-server:latest \
-		docker.io/envoyproxy/envoy:v1.29-latest \
+		docker.io/dexidp/dex:latest \
+		docker.io/envoyproxy/envoy:v1.34-latest \
 		docker.io/openpolicyagent/kube-mgmt:latest \
 		docker.io/openpolicyagent/opa:latest-static \
+		docker.io/openpolicyagent/opa:0.66.0-static \
 		docker.io/portainer/kubectl-shell:latest \
 		$(DOCKER_REGISTRY)k8s-athenz-sia:latest \
 		$(DOCKER_REGISTRY)docker-vegeta:latest \
-		docker.io/athenz/authorization-proxy:latest
+		docker.io/tatyano/authorization-proxy:latest
 
 kind-shutdown:
 	kind delete cluster
+
+setup-crypki-softhsm:
+	@$(MAKE) -C crypki-softhsm setup-crypki-softhsm
+
+deploy-crypki-softhsm: copy-crypki-certificates-to-kustomization setup-crypki-softhsm
+	@$(MAKE) -C crypki-softhsm deploy-crypki-softhsm
+
+test-crypki-softhsm:
+	@$(MAKE) -C crypki-softhsm test-crypki-softhsm
+
+setup-athenz-oauth2:
+	@$(MAKE) -C athenz-oauth2 setup-athenz-oauth2
+
+deploy-athenz-oauth2: setup-athenz-oauth2
+	@$(MAKE) -C athenz-oauth2 deploy-athenz-oauth2
+
+test-athenz-oauth2:
+	@$(MAKE) -C athenz-oauth2 test-athenz-oauth2
 
 kustomize-edit-athenz-db-image: install-kustomize
 	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/t4niwa/" ]; then \
@@ -92,8 +174,13 @@ kustomize-edit-athenz-zms-server-image: install-kustomize
 	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/t4niwa/" ]; then \
 	( \
 	cd athenz-zms-server/kustomize \
+<<<<<<< HEAD
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-auth-core:latest=$(DOCKER_REGISTRY)athenz-auth-core:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zms-server:latest=$(DOCKER_REGISTRY)athenz-zms-server:latest \
+=======
+	&& kustomize edit set image ghcr.io/ctyano/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
+	&& kustomize edit set image ghcr.io/ctyano/athenz-zms-server:latest=$(DOCKER_REGISTRY)athenz-zms-server:latest \
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
 	) \
 	fi
 
@@ -104,9 +191,15 @@ kustomize-edit-athenz-zts-server-image: install-kustomize
 	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/t4niwa/" ]; then \
 	( \
 	cd athenz-zts-server/kustomize \
+<<<<<<< HEAD
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-auth-core:latest=$(DOCKER_REGISTRY)athenz-auth-core:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
 	&& kustomize edit set image ghcr.io/t4niwa/athenz-zts-server:latest=$(DOCKER_REGISTRY)athenz-zts-server:latest \
+=======
+	&& kustomize edit set image ghcr.io/ctyano/athenz-plugins:latest=$(DOCKER_REGISTRY)athenz-plugins:latest \
+	&& kustomize edit set image ghcr.io/ctyano/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
+	&& kustomize edit set image ghcr.io/ctyano/athenz-zts-server:latest=$(DOCKER_REGISTRY)athenz-zts-server:latest \
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
 	) \
 	fi
 
@@ -126,7 +219,7 @@ setup-athenz-ui: setup-athenz-zms-server kustomize-edit-athenz-ui-image
 
 setup-athenz: setup-athenz-db setup-athenz-cli setup-athenz-zms-server setup-athenz-zts-server setup-athenz-ui
 
-deploy-athenz: copy-to-kustomization setup-athenz
+deploy-athenz: copy-certificates-to-kustomization setup-athenz
 
 check-athenz:
 	SLEEP_SECONDS=5; \
@@ -267,6 +360,12 @@ deploy-athenz-identityprovider:
 test-athenz-identityprovider:
 	@$(MAKE) -C athenz-identityprovider test-athenz-identityprovider
 
+test-athenz-identityprovider-openpolicyagent:
+	@$(MAKE) -C athenz-identityprovider test-athenz-identityprovider-openpolicyagent
+
+test-athenz-identityprovider-openpolicyagent-coverage:
+	@$(MAKE) -C athenz-identityprovider test-athenz-identityprovider-openpolicyagent-coverage
+
 setup-athenz-authorizer: test-athenz-servers test-athenz-identityprovider
 	@$(MAKE) -C athenz-authorizer register-athenz-authorizer check-register-athenz-authorizer
 
@@ -394,9 +493,9 @@ test-athenz-envoy-loadtest:
 	@$(MAKE) -C loadtest run-athenz-envoy-loadtest
 
 test-athenz-loadtest:
-	@$(MAKE) -C loadtest run-athenz-envoy-loadtest run-athenz-sidecar-loadtest run-athenz-envoyfilter-loadtest run-athenz-envoywebhook-loadtest run-athenz-proxy-loadtest run-athenz-echoserver-loadtest run-athenz-loadtest
+	@$(MAKE) -C loadtest run-athenz-envoy-loadtest run-athenz-sidecar-loadtest run-athenz-envoyfilter-loadtest run-athenz-envoywebhook-loadtest run-athenz-authzproxy-loadtest run-athenz-echoserver-loadtest run-athenz-loadtest
 
 report-athenz-loadtest:
-	@$(MAKE) -C loadtest report-athenz-envoy-loadtest report-athenz-sidecar-loadtest report-athenz-envoyfilter-loadtest report-athenz-envoywebhook-loadtest report-athenz-proxy-loadtest report-athenz-echoserver-loadtest report-athenz-loadtest
+	@$(MAKE) -C loadtest report-athenz-envoy-loadtest report-athenz-sidecar-loadtest report-athenz-envoyfilter-loadtest report-athenz-envoywebhook-loadtest report-athenz-authzproxy-loadtest report-athenz-echoserver-loadtest report-athenz-loadtest
 
 test-athenz: test-athenz-servers test-zms-cli test-athenz-ui test-zts-accesstoken test-policies test-verify

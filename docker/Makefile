@@ -1,7 +1,9 @@
 clean-certificates:
 	rm -rf admin/{keys,certs}
-	rm -rf zms/var/{keys,certs,truststore}
-	rm -rf zts/var/{keys,certs,truststore}
+	rm -rf zms/var/{keys,certs}
+	rm -rf zts/var/{keys,certs}
+	rm -rf zms/{truststore,keystore}
+	rm -rf zts/{truststore,keystore}
 	rm -rf ui/tls/*.*
 
 clean-docker:
@@ -10,15 +12,13 @@ clean-docker:
 clean-athenz: clean-docker clean-certificates
 
 copy-to-compose:
-	mkdir -p admin zms/truststore zts/truststore ||:
+	mkdir -p admin zms/truststore zts/truststore zms/keystore zts/keystore ||:
 	cp -r ../keys ../certs admin/
 	cp -r ../keys ../certs zms/var/
 	cp -r ../keys ../certs zts/var/
 	cp -r ../keys/*.* ../certs/*.* ui/tls/
 	chmod -R a+r admin zms/var/keys zms/var/certs zts/var/keys zts/var/certs ui/tls
-	chmod -R a+rw zms/truststore zts/truststore zts/conf zts/var
-	cp ../athenz/servers/zms/schema/zms_server.sql db/schema/zms_server.sql
-	cp ../athenz/servers/zts/schema/zts_server.sql db/schema/zts_server.sql
+	chmod -R a+rw zms/truststore zts/truststore zms/keystore zts/keystore zts/conf zts/var
 
 build-setup-athenz:
 	docker compose -f docker-compose-build.yaml up --pull always --no-start -d
@@ -53,7 +53,7 @@ done
 	@echo ""
 
 start-zms:
-	docker compose start athenz-auth-core ||:
+	docker compose start athenz-plugins ||:
 	docker compose start athenz-zms-server
 	SLEEP_SECONDS=10; \
 WAITING_THRESHOLD=60; \
@@ -76,7 +76,7 @@ done
 	@echo ""
 
 start-zts:
-	docker compose start athenz-auth-core ||:
+	docker compose start athenz-plugins ||:
 	docker compose start athenz-cli
 	docker compose exec -T athenz-cli \
 zms-cli \

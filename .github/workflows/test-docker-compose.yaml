@@ -15,6 +15,10 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '.gemini/**'
+      - '*.md'
+      - 'docs/**'
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -69,7 +73,7 @@ jobs:
         id: checkout
         # You may pin to the exact commit or the version.
         # uses: https://github.com/actions/checkout/tags
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -80,7 +84,7 @@ jobs:
         id: login
         # You may pin to the exact commit or the version.
         # uses: https://github.com/docker/login-action/tags
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           # Server address of Docker registry. If not set then will default to Docker Hub
           registry: ${{ env.DOCKER_REGISTRY_URL }} # optional
@@ -99,7 +103,7 @@ jobs:
         id: setup-go
         # You may pin to the exact commit or the version.
         # uses: https://github.com/actions/setup-go/tags
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: stable
           check-latest: true
@@ -116,8 +120,15 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install docker-compose
 
+<<<<<<< HEAD
       # A GitHub Action to deploy application with Docker Compose
       - name: Deploy Application
+=======
+      # A GitHub Action to check Athenz version
+      -
+        name: Compare if Athenz version is above 11
+        id: compare-athenz-version-above-11
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
         run: |
           # Get latest release tag with:
           #   curl -s https://api.github.com/repos/t4niwa/athenz-distribution/releases \
@@ -130,14 +141,73 @@ jobs:
               | jq -r .[].tag_name \
               | grep -E ".*(v[0-9]*.[0-9]*.[0-9]*).*" \
               | sed -e 's/.*v\([0-9]*.[0-9]*.[0-9]*\).*/\1/g' \
-              | sort -ru \
+              | sort -ruV \
               | head -n1 \
           )"
+          echo "VERSION=${CURRENT_VERSION}" >> $GITHUB_ENV
+          if [[ $(printf '%s\n' "1.12.0" "${CURRENT_VERSION}" | sort -V | head -n1) = "1.12.0" ]]; then
+            echo "ATHENZ_VERSION_ABOVE_11=true" >> $GITHUB_ENV
+          fi
+
+      # A GitHub Action to switch Athenz version
+      -
+        name: Switch Athenz version
+        id: switch-athenz-version
+        if: ${{ github.event_name != 'pull_request' && env.VERSION != '' && github.event.inputs.target_version != '' && github.event.inputs.target_version != env.VERSION }}
+        run: |
+          echo "VERSION=${{ github.event.inputs.target_version }}" >> $GITHUB_ENV
+
+      # This action provides the following functionality for GitHub Actions runners:
+      # - Downloading and setting up a requested version of Java. See [Usage](#usage) for a list of supported distributions.
+      # - Extracting and caching custom version of Java from a local file.
+      # - Configuring runner for publishing using Apache Maven.
+      # - Configuring runner for publishing using Gradle.
+      # - Configuring runner for using GPG private key.
+      # - Registering problem matchers for error output.
+      # - Caching dependencies managed by Apache Maven.
+      # - Caching dependencies managed by Gradle.
+      # - Caching dependencies managed by sbt.
+      # - [Maven Toolchains declaration](https://maven.apache.org/guides/mini/guide-using-toolchains.html) for specified JDK versions.
+      # 
+      # This action allows you to work with Java and Scala projects.
+      # https://github.com/actions/setup-java
+      -
+        name: Setup Java 11
+        id: setup-java-11
+        if: env.ATHENZ_VERSION_ABOVE_11 != 'true'
+        # uses: https://github.com/actions/setup-java/tags
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+          #cache: maven
+      -
+        name: Setup Java 17
+        id: setup-java-17
+        if: env.ATHENZ_VERSION_ABOVE_11 == 'true'
+        # uses: https://github.com/actions/setup-java/tags
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          #cache: maven
+
+      # A GitHub Action to deploy application with Docker Compose
+      -
+        name: Deploy Application
+        id: build
+        run: |
           set -ex
-          VERSION=${CURRENT_VERSION} make build-deploy-docker-athenz
+          VERSION=${VERSION} make build-deploy-docker-athenz
 
       # A GitHub Action to check and test application
+<<<<<<< HEAD
       - name: Run Tests
+=======
+      -
+        name: Run Tests
+        id: test
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
         run: |
           # Run tests against your deployed application in KinD
           # Replace this with your test command

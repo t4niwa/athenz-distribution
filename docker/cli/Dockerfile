@@ -51,6 +51,8 @@ RUN go install github.com/smallstep/cli/cmd/step@latest
 
 RUN apk del build-dependencies
 
+RUN set -eux && apk update && apk add --no-cache --update tini
+
 FROM docker.io/library/alpine:3
 
 ARG VERSION
@@ -59,18 +61,24 @@ ARG BUILD_DATE
 # git rev-parse --short HEAD
 ARG VCS_REF
 
+ENV VERSION=$VERSION
+ENV BUILD_DATE=$BUILD_DATE
+ENV VCS_REF=$VCS_REF
+
 LABEL org.opencontainers.image.version=$VERSION
 LABEL org.opencontainers.image.revision=$VCS_REF
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.title="Athenz CLI"
-LABEL org.opencontainers.image.authors="t4niwa <t4niwa@duck.com>"
-LABEL org.opencontainers.image.vendor="t4niwa <t4niwa@duck.com>"
-LABEL org.opencontainers.image.licenses="Private"
-LABEL org.opencontainers.image.url="ghcr.io/t4niwa/athenz-cli"
+LABEL org.opencontainers.image.authors="ctyano <ctyano@duck.com>"
+LABEL org.opencontainers.image.vendor="ctyano <ctyano@duck.com>"
+LABEL org.opencontainers.image.licenses="GPL-3.0 license"
+LABEL org.opencontainers.image.url="ghcr.io/ctyano/athenz-cli"
 LABEL org.opencontainers.image.documentation="https://www.athenz.io/"
-LABEL org.opencontainers.image.source="https://github.com/AthenZ/athenz"
+LABEL org.opencontainers.image.source="https://github.com/ctyano/athenz-distribution"
 
-ENV APP_NAME athenz
+ENV APP_NAME='athenz'
+
+COPY --from=builder /sbin/tini /sbin/tini
 
 COPY --from=builder /go/bin/athenz-conf /usr/bin/athenz-conf
 COPY --from=builder /go/bin/zms-cli /usr/bin/zms-cli
@@ -96,4 +104,5 @@ RUN addgroup -g ${GID} ${APP_NAME} && \
 USER ${APP_NAME}:${APP_NAME}
 WORKDIR /home/athenz
 
-ENTRYPOINT ["/usr/bin/tail", "-f", "/dev/null"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/usr/bin/tail", "-f", "/dev/null"]

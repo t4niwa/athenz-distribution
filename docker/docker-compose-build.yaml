@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   athenz-cli:
     container_name: athenz-cli
@@ -22,7 +20,7 @@ services:
     environment:
       ZMS: https://athenz-zms-server:4443/zms/v1
       ZTS: https://athenz-zts-server:8443/zts/v1
-    restart: unless-stopped
+    restart: no
 
   # https://github.com/ghostunnel/ghostunnel
   ghostunnel:
@@ -54,7 +52,7 @@ services:
       - athenz
     volumes:
       - ./ui/tls:/home/athenz/tls:ro
-    restart: unless-stopped
+    restart: no
 
   athenz-ui:
     container_name: athenz-ui
@@ -118,8 +116,11 @@ services:
       - ./zms/var:/opt/athenz/zms/var:rw
       - ./zms/conf:/opt/athenz/zms/conf/zms_server:rw
       - ./zms/truststore:/var/run/athenz/truststore:rw
+      - ./zms/keystore:/var/run/athenz/keystore:rw
       - athenz-plugins:/athenz/plugins
     environment:
+      DEBUG: "true"
+      TZ: Asia/Tokyo
       ROOT: /opt/athenz/zms
       CLASSPATH: /opt/athenz/zms/lib/jars/*
       CONF_PATH: /opt/athenz/zms/conf/zms_server
@@ -133,7 +134,9 @@ services:
       ZMS_RSA_PRIVATE_KEY_ID: "0"
       ZMS_EC_PRIVATE_KEY_ID: "0"
       ZMS_TRUSTSTORE_PEM_PATH: /opt/athenz/zms/var/certs/ca.cert.pem
-    restart: unless-stopped
+      ZMS_KEYSTORE_CERT_PEM_PATH: /opt/athenz/zms/var/certs/zms.cert.pem
+      ZMS_KEYSTORE_KEY_PEM_PATH: /opt/athenz/zms/var/keys/zms.private.pem
+    restart: no
 
   athenz-zts-server:
     container_name: athenz-zts-server
@@ -160,8 +163,11 @@ services:
       - ./zts/conf:/opt/athenz/zts/conf/zts_server:rw
       - ./zts/conf:/opt/athenz/zts/conf/athenz:rw
       - ./zts/truststore:/var/run/athenz/truststore:rw
+      - ./zts/keystore:/var/run/athenz/keystore:rw
       - athenz-plugins:/athenz/plugins
     environment:
+      DEBUG: "true"
+      TZ: Asia/Tokyo
       ROOT: /opt/athenz/zts
       CLASSPATH: /opt/athenz/zts/lib/jars/*
       CONF_PATH: /opt/athenz/zts/conf/zts_server
@@ -171,9 +177,16 @@ services:
       ZTS_PRIVATE_KEY: /opt/athenz/zts/var/keys/zts.private.pem
       ZTS_PRIVATE_KEY_ID: "0"
       ZTS_SELF_SIGNER_PRIVATE_KEY: /opt/athenz/zts/var/keys/zts.private.pem
+      ZTS_TRUSTSTORE_PEM_PATH: /opt/athenz/zts/var/certs/ca.cert.pem
       ZTS_SIGNER_TRUSTSTORE_PEM_PATH: /opt/athenz/zts/var/certs/ca.cert.pem
       ZMS_CLIENT_TRUSTSTORE_PEM_PATH: /opt/athenz/zts/var/certs/ca.cert.pem
-    restart: unless-stopped
+      ZTS_KEYSTORE_CERT_PEM_PATH: /opt/athenz/zts/var/certs/zts.cert.pem
+      ZTS_KEYSTORE_KEY_PEM_PATH: /opt/athenz/zts/var/keys/zts.private.pem
+      ZMS_CLIENT_KEYSTORE_CERT_PEM_PATH: /opt/athenz/zts/var/certs/zts.cert.pem
+      ZMS_CLIENT_KEYSTORE_KEY_PEM_PATH: /opt/athenz/zts/var/keys/zts.private.pem
+      ZTS_SIGNER_KEYSTORE_CERT_PEM_PATH: /opt/athenz/zts/var/certs/ca.cert.pem
+      ZTS_SIGNER_KEYSTORE_KEY_PEM_PATH: /opt/athenz/zts/var/keys/ca.private.pem
+    restart: no
 
   athenz-db:
     container_name: athenz-db
@@ -195,11 +208,17 @@ services:
       TZ: Asia/Tokyo
       MYSQL_ROOT_PASSWORD: ""
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
-    restart: unless-stopped
+    restart: no
 
+<<<<<<< HEAD
   athenz-auth-core:
     container_name: athenz-auth-core
     image: ghcr.io/t4niwa/athenz-auth-core:latest
+=======
+  athenz-plugins:
+    container_name: athenz-plugins
+    image: ghcr.io/ctyano/athenz-plugins:latest
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
     environment:
       JAR_DESTINATION: /athenz/plugins/
     volumes:

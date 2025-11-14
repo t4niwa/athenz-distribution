@@ -13,12 +13,16 @@ generatorOptions:
 
 secretGenerator:
 - files:
-  - zms_keystore.pkcs12=certs/zms_keystore.pkcs12
-  name: athenz-zms-cert-stores
-  type: Opaque
-- files:
   - zms.private.pem=keys/zms.private.pem
   name: athenz-zms-keys
+  type: Opaque
+- files:
+  - zms.cert.pem=certs/zms.cert.pem
+  name: athenz-zms-certs
+  type: Opaque
+- files:
+  - ca.cert.pem=certs/ca.cert.pem
+  name: athenz-cacert
   type: Opaque
 
 configMapGenerator:
@@ -30,12 +34,14 @@ configMapGenerator:
   - logback.xml=conf/logback.xml
   - solution_templates.json=conf/solution_templates.json
   name: athenz-zms-conf
-- files:
-  - ca.cert.pem=certs/ca.cert.pem
-  name: athenz-cacert
 images:
+<<<<<<< HEAD
 - name: ghcr.io/t4niwa/athenz-auth-core:latest
   newName: ghcr.io/t4niwa/athenz-auth-core
+=======
+- name: ghcr.io/ctyano/athenz-plugins:latest
+  newName: ghcr.io/ctyano/athenz-plugins
+>>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
   newTag: latest
 - name: ghcr.io/t4niwa/athenz-zms-server:latest
   newName: ghcr.io/t4niwa/athenz-zms-server

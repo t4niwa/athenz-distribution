@@ -18,11 +18,13 @@ on:
     inputs:
       target_version:
         description: 'Target version to release this repository e.g. 0.0.0'
-        required: true
+        required: false
+        default: ''
         type: string
       current_version:
         description: 'Current released version of this repository e.g. 0.0.0'
-        required: true
+        required: false
+        default: ''
         type: string
 
 jobs:
@@ -89,3 +91,4 @@ jobs:
       repository-projects: none
       security-events: none
       statuses: none
+

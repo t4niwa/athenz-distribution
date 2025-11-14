@@ -1,13 +1,12 @@
 ifeq ($(wildcard athenz),)
 SUBMODULE := $(shell git submodule add --force https://github.com/AthenZ/athenz.git athenz)
+else
+SUBMODULE := $(shell git submodule update --recursive)
 endif
 
 ifeq ($(DOCKER_TAG),)
 ifeq ($(VERSION),)
-VERSION := $(shell git submodule status | sed 's/^.* athenz .*v\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/g')
-ifeq ($(VERSION),)
 VERSION := $(shell cat athenz/pom.xml | grep -E "<version>[0-9]+.[0-9]+.[0-9]+</version>" | head -n1 | sed -e 's/.*>\([0-9]*\.[0-9]*\.[0-9]*\)<.*/\1/g')
-endif
 DOCKER_TAG := :latest
 else
 DOCKER_TAG := :v$(VERSION)
@@ -80,7 +79,7 @@ endif
 
 build: build-athenz-db build-athenz-zms-server build-athenz-zts-server build-athenz-cli build-athenz-ui
 
-build-athenz-db: copy-ddl
+build-athenz-db:
 	IMAGE_NAME=$(DOCKER_REGISTRY)athenz-db$(DOCKER_TAG); \
 	LATEST_IMAGE_NAME=$(DOCKER_REGISTRY)athenz-db:latest; \
 	DOCKERFILE_PATH=./docker/db/Dockerfile; \
@@ -117,7 +116,7 @@ build-athenz-cli:
 
 buildx: buildx-athenz-db buildx-athenz-zms-server buildx-athenz-zts-server buildx-athenz-cli buildx-athenz-ui
 
-buildx-athenz-db: copy-ddl
+buildx-athenz-db:
 	IMAGE_NAME=$(DOCKER_REGISTRY)athenz-db$(DOCKER_TAG); \
 	LATEST_IMAGE_NAME=$(DOCKER_REGISTRY)athenz-db:latest; \
 	DOCKERFILE_PATH=./docker/db/Dockerfile; \
@@ -148,30 +147,16 @@ buildx-athenz-cli:
 	DOCKER_BUILDKIT=1 docker buildx build $(BUILD_ARG) $(XPLATFORM_ARGS) $(PUSH_OPTION) $(GID_ARG) $(UID_ARG) --cache-from $$IMAGE_NAME -t $$IMAGE_NAME -t $$LATEST_IMAGE_NAME -f $$DOCKERFILE_PATH .
 
 mirror-athenz-amd64-images:
-	IMAGE=athenz-db; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=athenz-zms-server; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=athenz-zts-server; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=athenz-ui; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=athenz-cli; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=k8s-athenz-sia; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-	IMAGE=athenz-auth-core; docker pull --platform linux/amd64 ghcr.io/t4niwa/$$IMAGE:latest && docker tag ghcr.io/t4niwa/$$IMAGE:latest docker.io/t4niwa/$$IMAGE:latest && docker push docker.io/t4niwa/$$IMAGE:latest
-
-install-golang:
-	which go \
-|| (curl -sf https://webi.sh/golang | sh \
-&& ~/.local/bin/pathman add ~/.local/bin)
-
-install-rdl-tools: install-golang
-	go install github.com/ardielle/ardielle-go/...@master && \
-	go install github.com/ardielle/ardielle-tools/...@master && \
-	export PATH=$$PATH:$$GOPATH/bin
-	mkdir -p athenz/clients/go/zms/bin && \
-	cp $$GOPATH/bin/rdl* athenz/clients/go/zms/bin/ && \
-	mkdir -p athenz/clients/go/zts/bin && \
-	cp $$GOPATH/bin/rdl* athenz/clients/go/zts/bin/ && \
-	mkdir -p athenz/clients/go/msd/bin && \
-	cp $$GOPATH/bin/rdl* athenz/clients/go/msd/bin/ && \
-	chmod a+x athenz/clients/go/*/bin/*
+	IMAGE=athenz-db; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz-zms-server; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz-zts-server; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz-ui; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz-cli; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=k8s-athenz-sia; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz-plugins; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=crypki-softhsm; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=certsigner-envoy; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
+	IMAGE=athenz_user_cert; docker pull --platform linux/amd64 ghcr.io/ctyano/$$IMAGE:latest && docker tag ghcr.io/ctyano/$$IMAGE:latest docker.io/tatyano/$$IMAGE:latest && docker push docker.io/tatyano/$$IMAGE:latest
 
 patch:
 	$(PATCH) && rsync -av --exclude=".gitkeep" patchfiles/* athenz
@@ -238,10 +223,6 @@ build-go: checkout-version install-rdl-tools
 		-pl utils/zts-svccert \
 		-pl assembly/utils
 
-copy-ddl: checkout-version
-	cp athenz/servers/zms/schema/zms_server.sql ./docker/db/schema/zms_server.sql
-	cp athenz/servers/zts/schema/zts_server.sql ./docker/db/schema/zts_server.sql
-
 clean: checkout
 	mvn -B clean \
 		-f athenz/pom.xml \
@@ -267,33 +248,57 @@ version:
 	@echo "Tag Version: v$(VERSION)"
 
 install-pathman:
-	test -e ~/.local/bin/pathman \
-|| curl -sf https://webi.sh/pathman | sh
+	test -x "$$HOME/.local/bin/pathman" \
+|| curl -fsSL https://webi.sh/pathman | sh ; \
+printf '%s\n' ":$$PATH:" | grep -q "$$HOME/.local/bin" \
+|| export PATH="$$PATH:$$HOME/.local/bin"
+
+install-golang: install-pathman
+	which go \
+|| (curl -sf https://webi.sh/golang | sh \
+&& ~/.local/bin/pathman add ~/.local/bin \
+|| export PATH="$$PATH:$$HOME/.local/bin")
 
 install-jq: install-pathman
 	which jq \
 || (curl -sf https://webi.sh/jq | sh \
-&& ~/.local/bin/pathman add ~/.local/bin)
+&& ~/.local/bin/pathman add ~/.local/bin \
+|| export PATH="$$PATH:$$HOME/.local/bin")
 
 install-yq: install-pathman
 	which yq \
 || (curl -sf https://webi.sh/yq | sh \
-&& ~/.local/bin/pathman add ~/.local/bin)
+&& ~/.local/bin/pathman add ~/.local/bin \
+|| export PATH="$$PATH:$$HOME/.local/bin")
 
 install-step: install-pathman
 	which step \
 || (STEP_VERSION=$$(curl -sf https://api.github.com/repos/smallstep/cli/releases | jq -r .[].tag_name | grep -E '^v[0-9]*.[0-9]*.[0-9]*$$' | head -n1 | sed -e 's/.*v\([0-9]*.[0-9]*.[0-9]*\).*/\1/g') \
 ; curl -fL "https://github.com/smallstep/cli/releases/download/v$${STEP_VERSION}/step_$(GOOS)_$${STEP_VERSION}_$(GOARCH).tar.gz" | tar -xz -C ~/.local/bin/ \
 && ln -sf ~/.local/bin/step_$${STEP_VERSION}/bin/step ~/.local/bin/step \
-&& ~/.local/bin/pathman add ~/.local/bin)
+&& ~/.local/bin/pathman add ~/.local/bin \
+|| export PATH="$$PATH:$$HOME/.local/bin")
+
+install-parsers: install-jq install-yq install-step
 
 install-kustomize: install-pathman
 	which kustomize \
 || (cd ~/.local/bin \
 && curl "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash \
-&& ~/.local/bin/pathman add ~/.local/bin)
+&& ~/.local/bin/pathman add ~/.local/bin \
+|| export PATH="$$PATH:$$HOME/.local/bin")
 
-install-parsers: install-jq install-yq install-step
+install-rdl-tools: install-golang
+	go install github.com/ardielle/ardielle-go/...@master && \
+	go install github.com/ardielle/ardielle-tools/...@master && \
+	export PATH=$$PATH:$$GOPATH/bin
+	mkdir -p athenz/clients/go/zms/bin && \
+	cp $$GOPATH/bin/rdl* athenz/clients/go/zms/bin/ && \
+	mkdir -p athenz/clients/go/zts/bin && \
+	cp $$GOPATH/bin/rdl* athenz/clients/go/zts/bin/ && \
+	mkdir -p athenz/clients/go/msd/bin && \
+	cp $$GOPATH/bin/rdl* athenz/clients/go/msd/bin/ && \
+	chmod a+x athenz/clients/go/*/bin/*
 
 clean-certificates:
 	rm -rf keys certs
@@ -303,6 +308,7 @@ generate-ca:
 	openssl genrsa -out keys/ca.private.pem 4096
 	openssl rsa -pubout -in keys/ca.private.pem -out keys/ca.public.pem
 	openssl req -new -x509 -days 99999 -config openssl/ca.openssl.config -extensions ext_req -key keys/ca.private.pem -out certs/ca.cert.pem
+	cp certs/ca.cert.pem certs/selfsign.ca.cert.pem
 
 generate-zms: generate-ca
 	mkdir keys certs ||:
@@ -311,7 +317,7 @@ generate-zms: generate-ca
 	openssl req -config openssl/zms.openssl.config -new -key keys/zms.private.pem -out certs/zms.csr.pem -extensions ext_req
 	openssl x509 -req -in certs/zms.csr.pem -CA certs/ca.cert.pem -CAkey keys/ca.private.pem -CAcreateserial -out certs/zms.cert.pem -days 99999 -extfile openssl/zms.openssl.config -extensions ext_req
 	openssl verify -CAfile certs/ca.cert.pem certs/zms.cert.pem
-	openssl pkcs12 -export -noiter -out certs/zms_keystore.pkcs12 -in certs/zms.cert.pem -inkey keys/zms.private.pem -password pass:athenz
+	#openssl pkcs12 -export -noiter -out certs/zms_keystore.pkcs12 -in certs/zms.cert.pem -inkey keys/zms.private.pem -password pass:athenz
 	#keytool -import -noprompt -file certs/ca.cert.pem -alias ca -keystore certs/zms_truststore.jks -storepass athenz
 	#keytool --list -keystore certs/zms_truststore.jks -storepass athenz
 
@@ -322,9 +328,9 @@ generate-zts: generate-zms
 	openssl req -config openssl/zts.openssl.config -new -key keys/zts.private.pem -out certs/zts.csr.pem -extensions ext_req
 	openssl x509 -req -in certs/zts.csr.pem -CA certs/ca.cert.pem -CAkey keys/ca.private.pem -CAcreateserial -out certs/zts.cert.pem -days 99999 -extfile openssl/zts.openssl.config -extensions ext_req
 	openssl verify -CAfile certs/ca.cert.pem certs/zts.cert.pem
-	openssl pkcs12 -export -noiter -out certs/zts_keystore.pkcs12 -in certs/zts.cert.pem -inkey keys/zts.private.pem -password pass:athenz
-	openssl pkcs12 -export -noiter -out certs/zms_client_keystore.pkcs12 -in certs/zts.cert.pem -inkey keys/zts.private.pem -password pass:athenz
-	openssl pkcs12 -export -noiter -out certs/zts_signer_keystore.pkcs12 -in certs/ca.cert.pem -inkey keys/ca.private.pem -password pass:athenz
+	#openssl pkcs12 -export -noiter -out certs/zts_keystore.pkcs12 -in certs/zts.cert.pem -inkey keys/zts.private.pem -password pass:athenz
+	#openssl pkcs12 -export -noiter -out certs/zms_client_keystore.pkcs12 -in certs/zts.cert.pem -inkey keys/zts.private.pem -password pass:athenz
+	#openssl pkcs12 -export -noiter -out certs/zts_signer_keystore.pkcs12 -in certs/ca.cert.pem -inkey keys/ca.private.pem -password pass:athenz
 	#keytool -import -noprompt -file certs/ca.cert.pem -alias ca -keystore certs/zts_truststore.jks -storepass athenz
 	#keytool -import -noprompt -file certs/ca.cert.pem -alias ca -keystore certs/zms_client_truststore.jks -storepass athenz
 	#keytool --list -keystore certs/zts_truststore.jks -storepass athenz
@@ -350,35 +356,17 @@ generate-identityprovider: generate-ca
 	openssl genrsa -out - 4096 | openssl pkey -out keys/identityprovider.private.pem
 	openssl rsa -pubout -in keys/identityprovider.private.pem -out keys/identityprovider.public.pem
 
-generate-authorizer: generate-ca
+generate-crypki: generate-ca
 	mkdir keys certs ||:
-	openssl genrsa -out - 4096 | openssl pkey -out keys/authorizer.private.pem
-	openssl rsa -pubout -in keys/authorizer.private.pem -out keys/authorizer.public.pem
+	openssl genrsa -out - 4096 | openssl pkey -out keys/crypki.private.pem
+	openssl req -config openssl/crypki.openssl.config -new -key keys/crypki.private.pem -out certs/crypki.csr.pem -extensions ext_req
+	openssl x509 -req -in certs/crypki.csr.pem -CA certs/ca.cert.pem -CAkey keys/ca.private.pem -CAcreateserial -out certs/crypki.cert.pem -days 99999 -extfile openssl/crypki.openssl.config -extensions ext_req
+	openssl verify -CAfile certs/ca.cert.pem certs/crypki.cert.pem
 
-generate-authzenvoy: generate-ca
-	mkdir keys certs ||:
-	openssl genrsa -out - 4096 | openssl pkey -out keys/authzenvoy.private.pem
-	openssl rsa -pubout -in keys/authzenvoy.private.pem -out keys/authzenvoy.public.pem
-
-generate-authzwebhook: generate-ca
-	mkdir keys certs ||:
-	openssl genrsa -out - 4096 | openssl pkey -out keys/authzwebhook.private.pem
-	openssl rsa -pubout -in keys/authzwebhook.private.pem -out keys/authzwebhook.public.pem
-
-generate-authzproxy: generate-ca
-	mkdir keys certs ||:
-	openssl genrsa -out - 4096 | openssl pkey -out keys/authzproxy.private.pem
-	openssl rsa -pubout -in keys/authzproxy.private.pem -out keys/authzproxy.public.pem
-
-generate-client: generate-ca
-	mkdir keys certs ||:
-	openssl genrsa -out - 4096 | openssl pkey -out keys/client.private.pem
-	openssl rsa -pubout -in keys/client.private.pem -out keys/client.public.pem
-
-generate-certificates: generate-ca generate-zms generate-zts generate-admin generate-ui generate-identityprovider generate-client generate-authorizer generate-authzenvoy generate-authzwebhook generate-authzproxy
+generate-certificates: generate-ca generate-zms generate-zts generate-admin generate-ui generate-identityprovider generate-crypki
 
 clean-kubernetes-athenz: clean-certificates
-	@$(MAKE) -C kubernetes clean-athenz
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes clean
 
 load-docker-images: load-docker-images-internal load-docker-images-external
 
@@ -390,97 +378,124 @@ load-docker-images-internal:
 	docker pull $(DOCKER_REGISTRY)athenz-ui:latest
 
 load-docker-images-external:
-	docker pull docker.io/ghostunnel/ghostunnel:latest
-	docker pull $(DOCKER_REGISTRY)athenz-auth-core:latest
-	docker pull docker.io/openpolicyagent/kube-mgmt:latest
-	docker pull docker.io/ealen/echo-server:latest
-	docker pull docker.io/envoyproxy/envoy:v1.29-latest
-	docker pull docker.io/portainer/kubectl-shell:latest
-	docker pull docker.io/openpolicyagent/opa:latest-static
-	docker pull $(DOCKER_REGISTRY)k8s-athenz-sia:latest
+	docker pull $(DOCKER_REGISTRY)athenz-plugins:latest
+	docker pull $(DOCKER_REGISTRY)athenz_user_cert:latest
+	docker pull $(DOCKER_REGISTRY)certsigner-envoy:latest
+	docker pull $(DOCKER_REGISTRY)crypki-softhsm:latest
 	docker pull $(DOCKER_REGISTRY)docker-vegeta:latest
-	docker pull docker.io/athenz/authorization-proxy:latest
+	docker pull $(DOCKER_REGISTRY)k8s-athenz-sia:latest
+	docker pull docker.io/dexidp/dex:latest
+	docker pull docker.io/ealen/echo-server:latest
+	docker pull docker.io/envoyproxy/envoy:v1.34-latest
+	docker pull docker.io/ghostunnel/ghostunnel:latest
+	docker pull docker.io/openpolicyagent/kube-mgmt:latest
+	docker pull docker.io/openpolicyagent/opa:latest-static
+	docker pull docker.io/openpolicyagent/opa:0.66.0-static
+	docker pull docker.io/portainer/kubectl-shell:latest
+	docker pull docker.io/tatyano/authorization-proxy:latest
 
 load-kubernetes-images: version install-kustomize
-	@$(MAKE) -C kubernetes kind-load-images
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes kind-load-images
+
+deploy-kubernetes-crypki-softhsm: generate-certificates
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-crypki-softhsm deploy-crypki-softhsm
+
+test-kubernetes-crypki-softhsm:
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-crypki-softhsm
+
+use-kubernetes-crypki-softhsm: test-kubernetes-crypki-softhsm deploy-kubernetes-athenz-oauth2
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes switch-athenz-zts-cert-signer
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-oauth2
+
+deploy-kubernetes-athenz-oauth2:
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-oauth2 deploy-athenz-oauth2
+
+test-kubernetes-athenz-oauth2:
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-oauth2
 
 deploy-kubernetes-athenz: generate-certificates
-	@$(MAKE) -C kubernetes deploy-athenz
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes deploy-athenz
 
 deploy-kubernetes-athenz-identityprovider: install-parsers
-	@$(MAKE) -C kubernetes setup-athenz-identityprovider deploy-athenz-identityprovider
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-identityprovider deploy-athenz-identityprovider
 
 test-kubernetes-athenz-identityprovider:
-	@$(MAKE) -C kubernetes test-athenz-identityprovider
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-identityprovider
+
+test-kubernetes-athenz-identityprovider-openpolicyagent:
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-identityprovider-openpolicyagent
+
+test-kubernetes-athenz-identityprovider-openpolicyagent-coverage:
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-identityprovider-openpolicyagent-coverage
 
 deploy-kubernetes-athenz-authorizer:
-	@$(MAKE) -C kubernetes setup-athenz-authorizer deploy-athenz-authorizer
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-authorizer deploy-athenz-authorizer
 
 test-kubernetes-athenz-authorizer:
-	@$(MAKE) -C kubernetes test-athenz-authorizer
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-authorizer
 
 deploy-kubernetes-athenz-authzenvoy:
-	@$(MAKE) -C kubernetes setup-athenz-authzenvoy deploy-athenz-authzenvoy
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-authzenvoy deploy-athenz-authzenvoy
 
 test-kubernetes-athenz-authzenvoy:
-	@$(MAKE) -C kubernetes test-athenz-authzenvoy
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-authzenvoy
 
 deploy-kubernetes-athenz-authzwebhook:
-	@$(MAKE) -C kubernetes setup-athenz-authzwebhook deploy-athenz-authzwebhook
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-authzwebhook deploy-athenz-authzwebhook
 
 test-kubernetes-athenz-authzwebhook:
-	@$(MAKE) -C kubernetes test-athenz-authzwebhook
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-authzwebhook
 
 deploy-kubernetes-athenz-authzproxy:
-	@$(MAKE) -C kubernetes setup-athenz-authzproxy deploy-athenz-authzproxy
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-authzproxy deploy-athenz-authzproxy
 
 test-kubernetes-athenz-authzproxy:
-	@$(MAKE) -C kubernetes test-athenz-authzproxy
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-authzproxy
 
 deploy-kubernetes-athenz-client:
-	@$(MAKE) -C kubernetes setup-athenz-client deploy-athenz-client
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-client deploy-athenz-client
 
 test-kubernetes-athenz-client:
-	@$(MAKE) -C kubernetes test-athenz-client
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-client
 
 deploy-kubernetes-athenz-workloads:
-	@$(MAKE) -C kubernetes setup-athenz-workloads deploy-athenz-workloads
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes setup-athenz-workloads deploy-athenz-workloads
 
 test-kubernetes-athenz-workloads:
-	@$(MAKE) -C kubernetes test-athenz-workloads
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-workloads
 
 deploy-kubernetes-athenz-loadtest:
-	@$(MAKE) -C kubernetes deploy-athenz-loadtest
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes deploy-athenz-loadtest
 
 test-kubernetes-athenz-envoy-loadtest:
-	@$(MAKE) -C kubernetes test-athenz-envoy-loadtest
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-envoy-loadtest
 
 test-kubernetes-athenz-loadtest:
-	@$(MAKE) -C kubernetes test-athenz-loadtest
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-loadtest
 
 report-kubernetes-athenz-loadtest:
-	@$(MAKE) -C kubernetes report-athenz-loadtest
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes report-athenz-loadtest
 
 test-kubernetes-athenz-envoy2envoyextauthz:
-	@$(MAKE) -C kubernetes test-athenz-envoy2envoyextauthz
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-envoy2envoyextauthz
 
 test-kubernetes-athenz-envoy2envoyfilter:
-	@$(MAKE) -C kubernetes test-athenz-envoy2envoyfilter
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-envoy2envoyfilter
 
 test-kubernetes-athenz-envoy2envoywebhook:
-	@$(MAKE) -C kubernetes test-athenz-envoy2envoywebhook
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-envoy2envoywebhook
 
 test-kubernetes-athenz-envoy2authzproxy:
-	@$(MAKE) -C kubernetes test-athenz-envoy2authzproxy
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-envoy2authzproxy
 
 test-kubernetes-athenz-showcases:
-	@$(MAKE) -C kubernetes test-athenz-showcases
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz-showcases
 
 check-kubernetes-athenz: install-parsers
-	@$(MAKE) -C kubernetes check-athenz
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes check-athenz
 
 test-kubernetes-athenz: install-parsers
-	@$(MAKE) -C kubernetes test-athenz
+	@DOCKER_REGISTRY=$(DOCKER_REGISTRY) $(MAKE) -C kubernetes test-athenz
 
 clean-docker-athenz: clean-certificates
 	@VERSION=$(VERSION) $(MAKE) -C docker clean-athenz

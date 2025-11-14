@@ -83,7 +83,7 @@ register-athenz-authzproxy:
 			-d $$(cat kustomize/athenz-sia/athenz-sia.env | grep -E ^PROVIDER_SERVICE | sed -e 's/PROVIDER_SERVICE=\(.*\)\.\(.*\)/\1/g') \
 			add-assertion \
 			authorization-proxy-clients \
-			grant get to authorization-proxy-clients on server.* ||:
+			grant get to authorization-proxy-clients on server.test* ||:
 	kubectl -n athenz exec deployment/athenz-cli -it -- \
 		zms-cli \
 			-z https://athenz-zms-server.athenz:4443/zms/v1 \
@@ -131,6 +131,7 @@ kustomize-edit-athenz-authzproxy-image:
 	&& kustomize edit set image ghcr.io/t4niwa/k8s-athenz-sia:latest=$(DOCKER_REGISTRY)k8s-athenz-sia:latest \
 	) \
 	fi
+	cd kustomize && kustomize edit set image docker.io/athenz/authorization-proxy:latest=docker.io/tatyano/authorization-proxy:latest
 
 deploy-athenz-authzproxy: kustomize-edit-athenz-authzproxy-image
 	kubectl apply -k kustomize
@@ -159,6 +160,7 @@ while true; do \
 		printf "\n\n** Waiting ($$(( $$i * $${SLEEP_SECONDS} ))s) reached to threshold($${WAITING_THRESHOLD}s) **\n\n"; \
 		kubectl -n athenz get all | grep -E "pod/authzproxy-" | sed -e 's/^\(pod\/[^ ]*\) *[0-9]\/[0-9].*/\1/g' | xargs -I%% kubectl -n athenz logs %% --all-containers=true ||:; \
 		kubectl -n athenz get all | grep -E "pod/authzproxy-" | sed -e 's/^\(pod\/[^ ]*\) *[0-9]\/[0-9].*/\1/g' | xargs -I%% kubectl -n athenz describe %% ||:; \
+		kubectl -n athenz get all | grep -E "pod/identityprovider-deployment-" | sed -e 's/^\(pod\/[^ ]*\) *[0-9]\/[0-9].*/\1/g' | xargs -I%% kubectl -n athenz logs %% -c opa | grep "Identity Provider OPA Rego" ||:; \
 		kubectl -n athenz get all; \
 		exit 1; \
 	fi; \
