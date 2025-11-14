@@ -30,7 +30,7 @@ env:
   NFPM_SOURCE_IMAGES: athenz-db,athenz-zms-server,athenz-zts-server,athenz-cli
   NFPM_TARGET_PACKAGER: apk,deb,rpm
   NFPM_TARGET_COMPONENTS: zms,zts,cli
-  GITHUB_REPOSITORY: ctyano/athenz-distribution
+  GITHUB_REPOSITORY: t4niwa/athenz-distribution
   TRACKING_GIT_REPO: AthenZ/athenz
 
 jobs:
@@ -185,7 +185,7 @@ jobs:
           ACCEPT_HEADER="Accept: application/vnd.github+json"
 
           job=$(curl -s -H "$ACCEPT_HEADER" -H "$AUTH_HEADER" \
-            "https://api.github.com/repos/ctyano/athenz-distribution/actions/runs" | \
+            "https://api.github.com/repos/t4niwa/athenz-distribution/actions/runs" | \
             jq -r ".workflow_runs.[] | select(.event == \"workflow_dispatch\" and .head_branch == \"$tag\") | .html_url" | head -n 1)
 
           body=$(curl -s -H "$ACCEPT_HEADER" -H "$AUTH_HEADER" \

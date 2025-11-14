@@ -3,4 +3,4 @@
 	url = https://github.com/AthenZ/athenz.git
 [submodule "kubernetes/athenz-identityprovider/kustomize/athenz-identityprovider-policy"]
 	path = kubernetes/athenz-identityprovider/kustomize/athenz-identityprovider-policy
-	url = https://github.com/ctyano/athenz-identityprovider-policy.git
+	url = https://github.com/t4niwa/athenz-identityprovider-policy.git

@@ -1,5 +1,5 @@
 ifeq ($(DOCKER_REGISTRY),)
-DOCKER_REGISTRY=ghcr.io/ctyano/
+DOCKER_REGISTRY=ghcr.io/t4niwa/
 endif
 
 clean-athenz-oauth2:
@@ -11,8 +11,8 @@ install-athenz_user_cert: install-brew
 	if [ "$$(uname -s)" = "Darwin" ]; then \
 		which athenz_user_cert \
 		|| ( \
-		brew tap ctyano/athenz_user_cert https://github.com/ctyano/athenz_user_cert \
-		&& HOMEBREW_NO_AUTO_UPDATE=true brew install ctyano/athenz_user_cert/athenz_user_cert \
+		brew tap t4niwa/athenz_user_cert https://github.com/t4niwa/athenz_user_cert \
+		&& HOMEBREW_NO_AUTO_UPDATE=true brew install t4niwa/athenz_user_cert/athenz_user_cert \
 		) \
 	fi
 
@@ -20,7 +20,7 @@ uninstall-athenz_user_cert:
 	which athenz_user_cert \
 	&& ( \
 	brew uninstall athenz_user_cert \
-	&& brew untap ctyano/athenz_user_cert \
+	&& brew untap t4niwa/athenz_user_cert \
 	)
 
 install-brew:

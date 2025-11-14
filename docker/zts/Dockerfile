@@ -53,13 +53,13 @@ LABEL org.opencontainers.image.vendor="t4niwa <t4niwa@duck.com>"
 LABEL org.opencontainers.image.licenses="Private"
 LABEL org.opencontainers.image.url="ghcr.io/t4niwa/athenz-cli"
 =======
-LABEL org.opencontainers.image.authors="ctyano <ctyano@duck.com>"
-LABEL org.opencontainers.image.vendor="ctyano <ctyano@duck.com>"
+LABEL org.opencontainers.image.authors="t4niwa <t4niwa@duck.com>"
+LABEL org.opencontainers.image.vendor="t4niwa <t4niwa@duck.com>"
 LABEL org.opencontainers.image.licenses="GPL-3.0 license"
-LABEL org.opencontainers.image.url="ghcr.io/ctyano/athenz-cli"
+LABEL org.opencontainers.image.url="ghcr.io/t4niwa/athenz-cli"
 >>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
 LABEL org.opencontainers.image.documentation="https://www.athenz.io/"
-LABEL org.opencontainers.image.source="https://github.com/ctyano/athenz-distribution"
+LABEL org.opencontainers.image.source="https://github.com/t4niwa/athenz-distribution"
 
 #RUN apk add --no-cache bash
 RUN apt-get update

@@ -42,7 +42,7 @@ spec:
               memory: 64Mi
               cpu: 50m
         - name: envoy
-          image: ghcr.io/ctyano/certsigner-envoy:latest
+          image: ghcr.io/t4niwa/certsigner-envoy:latest
           imagePullPolicy: IfNotPresent
           command:
             - envoy
@@ -59,7 +59,7 @@ spec:
               mountPath: /etc/envoy/envoy.yaml
               subPath: envoy.yaml
         - name: athenz-user-cert
-          image: ghcr.io/ctyano/athenz_user_cert:latest
+          image: ghcr.io/t4niwa/athenz_user_cert:latest
           imagePullPolicy: IfNotPresent
           command:
             - tail

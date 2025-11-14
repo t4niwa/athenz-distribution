@@ -4,58 +4,39 @@
 
 Primary Docker(OCI) image distributions:
 
-<<<<<<< HEAD
   - [athenz-db](https://github.com/users/t4niwa/packages/container/package/athenz-db)
-    - includes ddls to reduce database setup efforts.
-  - [athenz-zms-server](https://github.com/users/t4niwa/packages/container/package/athenz-zms-server)
-    - includes additional capabilities that read pem certificates to convert into jks/pkcs12 keystores to reduce deployer environment dependencies.
-    - includes various solution templates for useful showcases.
-  - [athenz-zts-server](https://github.com/users/t4niwa/packages/container/package/athenz-zts-server)
-    - includes additional capabilities that read pem certificates to convert into jks/pkcs12 keystores to reduce deployer environment dependencies.
-  - [athenz-cli](https://github.com/users/t4niwa/packages/container/package/athenz-cli)
-    - includes various clis for debugging/demonstrating perposes.
-  - [athenz-ui](https://github.com/users/t4niwa/packages/container/package/athenz-ui)
-    - functional athenz web ui.
-    - includes additional compatibiliry with oidc auth proxy (e.g. [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/)).
-
-External Docker(OCI) image distributions:
-
-  - [athenz-auth-core](https://github.com/users/t4niwa/packages/container/package/athenz-auth-core)
-  - [k8s-athenz-sia](https://github.com/users/t4niwa/packages/container/package/k8s-athenz-sia)
-=======
-  - [athenz-db](https://github.com/users/ctyano/packages/container/package/athenz-db)
     - This image provides a MariaDB database to store data for ZMS and ZTS.
     - This image includes DDLs to reduce database setup efforts.
-  - [athenz-zms-server](https://github.com/users/ctyano/packages/container/package/athenz-zms-server)
+  - [athenz-zms-server](https://github.com/users/t4niwa/packages/container/package/athenz-zms-server)
     - This image provides the [Athenz ZMS](https://athenz.github.io/athenz/system_view/#zms-authz-management-system) server component.
     - This image includes additional capabilities to read PEM certificates and convert them into JKS/PKCS12 keystores to reduce deployer environment dependencies.
     - This image includes various solution templates for useful showcases.
-  - [athenz-zts-server](https://github.com/users/ctyano/packages/container/package/athenz-zts-server)
+  - [athenz-zts-server](https://github.com/users/t4niwa/packages/container/package/athenz-zts-server)
     - This image provides the [Athenz ZTS](https://athenz.github.io/athenz/system_view/#zts-authz-token-system) server component.
     - This image includes additional capabilities to read PEM certificates and convert them into JKS/PKCS12 keystores to reduce deployer environment dependencies.
-  - [athenz-cli](https://github.com/users/ctyano/packages/container/package/athenz-cli)
+  - [athenz-cli](https://github.com/users/t4niwa/packages/container/package/athenz-cli)
     - This image includes various CLIs for debugging/demonstration purposes.
-  - [athenz-ui](https://github.com/users/ctyano/packages/container/package/athenz-ui)
+  - [athenz-ui](https://github.com/users/t4niwa/packages/container/package/athenz-ui)
     - This image includes a functional Athenz Web UI.
     - This image includes additional compatibility with an OIDC auth proxy (e.g., [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/)).
 
 External Docker(OCI) image distributions:
 
-  - [athenz_user_cert](https://github.com/users/ctyano/packages/container/package/athenz_user_cert)
-    - This image includes a CLI to interact with [certsigner-envoy](https://github.com/users/ctyano/packages/container/package/certsigner-envoy) to retrieve certificates for Athenz user authentication.
-  - [certsigner-envoy](https://github.com/users/ctyano/packages/container/package/certsigner-envoy)
+  - [athenz_user_cert](https://github.com/users/t4niwa/packages/container/package/athenz_user_cert)
+    - This image includes a CLI to interact with [certsigner-envoy](https://github.com/users/t4niwa/packages/container/package/certsigner-envoy) to retrieve certificates for Athenz user authentication.
+  - [certsigner-envoy](https://github.com/users/t4niwa/packages/container/package/certsigner-envoy)
     - This image includes the Envoy proxy and a Wasm plugin to provide a user authentication mechanism to control access to the CertSigner server, such as [crypki](https://github.com/theparanoids/crypki) or [cfssl](https://github.com/cfssl/cfssl).
     - This image is a wrapper of [envoyproxy](https://hub.docker.com/r/envoyproxy/envoy).
-  - [crypki-softhsm](https://github.com/users/ctyano/packages/container/package/crypki-softhsm)
+  - [crypki-softhsm](https://github.com/users/t4niwa/packages/container/package/crypki-softhsm)
     - This image provides SoftHSM and the [crypki](https://github.com/theparanoids/crypki) server.
     - This image includes Crypki that can dynamically configure signing options.
-  - [athenz-plugins](https://github.com/users/ctyano/packages/container/package/athenz-plugins)
+  - [athenz-plugins](https://github.com/users/t4niwa/packages/container/package/athenz-plugins)
     - This image includes various JAR files containing plugins for Athenz ZMS and Athenz ZTS.
     - This image copies the JAR files to specified locations when running in a container runtime.
-  - [k8s-athenz-sia](https://github.com/users/ctyano/packages/container/package/k8s-athenz-sia)
+  - [k8s-athenz-sia](https://github.com/users/t4niwa/packages/container/package/k8s-athenz-sia)
     - This image is an enhanced version of [k8s-athenz-sia](https://github.com/AthenZ/k8s-athenz-sia).
     - This image provides additional capability to accept authorization check requests from sidecar proxies like [Envoy's External Authorization filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter).
-  - [authorization-envoy](https://github.com/users/ctyano/packages/container/package/authorization-envoy)
+  - [authorization-envoy](https://github.com/users/t4niwa/packages/container/package/authorization-envoy)
     - This image includes the Envoy proxy and a Wasm plugin to provide Athenz authentication and RBAC mechanisms to control access to the upstream cluster.
     - This image is a wrapper of [envoyproxy](https://hub.docker.com/r/envoyproxy/envoy).
 
@@ -71,9 +52,8 @@ Third-party Docker(OCI) images:
 
 ## Homebrew formulas
 
-  - [athenz_user_cert](https://github.com/ctyano/athenz_user_cert)
-    - This formula includes a CLI to interact with [certsigner-envoy](https://github.com/users/ctyano/packages/container/package/certsigner-envoy) to retrieve certificates for Athenz user authentication.
->>>>>>> 700f4428264d4ff1cc57b27f0f1b7b2ebdb096cc
+  - [athenz_user_cert](https://github.com/t4niwa/athenz_user_cert)
+    - This formula includes a CLI to interact with [certsigner-envoy](https://github.com/users/t4niwa/packages/container/package/certsigner-envoy) to retrieve certificates for Athenz user authentication.
 
 ## Linux packages (Under development)
 

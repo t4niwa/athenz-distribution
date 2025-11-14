@@ -143,7 +143,7 @@ jobs:
         id: compare-athenz-version-above-11
         run: |
           # Get latest release tag with:
-          #   curl -s https://api.github.com/repos/ctyano/athenz-distribution/releases \
+          #   curl -s https://api.github.com/repos/t4niwa/athenz-distribution/releases \
           #     | jq -r .[].tag_name \
           #     | grep -E ".*(v[0-9]*.[0-9]*.[0-9]*).*" \
           #     | sed -e 's/.*\(v[0-9]*.[0-9]*.[0-9]*\).*/\1/g' \

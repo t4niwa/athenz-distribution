@@ -49,12 +49,12 @@ LABEL org.opencontainers.image.version=$VERSION
 LABEL org.opencontainers.image.revision=$VCS_REF
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.title="Athenz UI Server"
-LABEL org.opencontainers.image.authors="ctyano <ctyano@duck.com>"
-LABEL org.opencontainers.image.vendor="ctyano <ctyano@duck.com>"
+LABEL org.opencontainers.image.authors="t4niwa <t4niwa@duck.com>"
+LABEL org.opencontainers.image.vendor="t4niwa <t4niwa@duck.com>"
 LABEL org.opencontainers.image.licenses="GPL-3.0 license"
-LABEL org.opencontainers.image.url="ghcr.io/ctyano/athenz-cli"
+LABEL org.opencontainers.image.url="ghcr.io/t4niwa/athenz-cli"
 LABEL org.opencontainers.image.documentation="https://www.athenz.io/"
-LABEL org.opencontainers.image.source="https://github.com/ctyano/athenz-distribution"
+LABEL org.opencontainers.image.source="https://github.com/t4niwa/athenz-distribution"
 
 ARG APP_NAME=athenz
 ARG GID=1001

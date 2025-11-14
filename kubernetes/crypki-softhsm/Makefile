@@ -1,5 +1,5 @@
 ifeq ($(DOCKER_REGISTRY),)
-DOCKER_REGISTRY=ghcr.io/ctyano/
+DOCKER_REGISTRY=ghcr.io/t4niwa/
 endif
 
 clean-certificates:
@@ -144,12 +144,12 @@ check-register-crypki-softhsm:
 	@echo ""
 
 kustomize-edit-crypki-softhsm-image:
-	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/ctyano/" ]; then \
+	if [ "$(DOCKER_REGISTRY)" != "ghcr.io/t4niwa/" ]; then \
 	( \
 	cd kustomize \
-	&& kustomize edit set image ghcr.io/ctyano/crypki-softhsm:latest=$(DOCKER_REGISTRY)crypki-softhsm:latest \
-	&& kustomize edit set image ghcr.io/ctyano/certsigner-envoy:latest=$(DOCKER_REGISTRY)certsigner-envoy:latest \
-	&& kustomize edit set image ghcr.io/ctyano/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
+	&& kustomize edit set image ghcr.io/t4niwa/crypki-softhsm:latest=$(DOCKER_REGISTRY)crypki-softhsm:latest \
+	&& kustomize edit set image ghcr.io/t4niwa/certsigner-envoy:latest=$(DOCKER_REGISTRY)certsigner-envoy:latest \
+	&& kustomize edit set image ghcr.io/t4niwa/athenz-cli:latest=$(DOCKER_REGISTRY)athenz-cli:latest \
 	) \
 	fi
 

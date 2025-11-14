@@ -59,7 +59,7 @@ spec:
             name: envoy-config
       containers:
         - name: crypki-softhsm
-          image: ghcr.io/ctyano/crypki-softhsm:latest
+          image: ghcr.io/t4niwa/crypki-softhsm:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DEBUG
@@ -149,7 +149,7 @@ spec:
             - name: crypki-logs
               mountPath: /var/log/crypki
         - name: athenz-cli
-          image: ghcr.io/ctyano/athenz-cli:latest
+          image: ghcr.io/t4niwa/athenz-cli:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
@@ -212,7 +212,7 @@ spec:
               mountPath: /opt/crypki/tls-crt
               readOnly: true
         - name: envoy
-          image: ghcr.io/ctyano/certsigner-envoy:latest
+          image: ghcr.io/t4niwa/certsigner-envoy:latest
           imagePullPolicy: IfNotPresent
           command:
             - envoy

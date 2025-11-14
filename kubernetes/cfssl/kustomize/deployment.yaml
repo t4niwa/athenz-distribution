@@ -85,7 +85,7 @@ spec:
               mountPath: /opt/cfssl/tls
               readOnly: true
         - name: athenz-cli
-          image: ghcr.io/ctyano/athenz-cli:latest
+          image: ghcr.io/t4niwa/athenz-cli:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
@@ -102,7 +102,7 @@ spec:
               memory: 256Mi
               cpu: 50m
         - name: envoy
-          image: ghcr.io/ctyano/certsigner-envoy:latest
+          image: ghcr.io/t4niwa/certsigner-envoy:latest
           imagePullPolicy: IfNotPresent
           command:
             - envoy
