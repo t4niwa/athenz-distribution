@@ -4,3 +4,10 @@ nodes:
 - role: control-plane
 networking:
   dnsSearch: []
+# Note: The resolvConf kubeadm patch (for systemd-resolved on Linux) was removed
+# because it causes kubeadm init failure on macOS/Docker Desktop.
+# If DNS resolution fails inside pods on Linux with systemd-resolved, add:
+#   kubeadmConfigPatches:
+#   - |
+#     kind: KubeletConfiguration
+#     resolvConf: /run/systemd/resolve/resolv.conf
