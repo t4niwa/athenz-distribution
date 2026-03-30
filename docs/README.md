@@ -57,4 +57,3 @@ Visit the official Athenz website: [www.athenz.io](http://www.athenz.io)
 - [How to generate keys and retrieve certificates (**Identity Provisioning**)](IDENTITYPROVISIONING.md)
 
 - [Envoy Ambassador Instruction for Kubernetes](ENVOY.md)
-
